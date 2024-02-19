@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import mongoose, { Schema } from "mongoose";
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
     {
         username: {
             type: String,
@@ -10,13 +10,13 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
-            index: true // if you want to enable searching field, like you know something can be searched more, this is more optimized way
+            index: true
         },
         email: {
             type: String,
             required: true,
             unique: true,
-            lowercase: true,
+            lowecase: true,
             trim: true,
         },
         fullname: {
@@ -26,26 +26,30 @@ const userSchema = new mongoose.Schema(
             index: true
         },
         avatar: {
-            type: String,// cloudinary url
-            required: true
+            type: String, // cloudinary url
+            required: true,
         },
         coverImage: {
-            type: String,// cloudinary url
+            type: String, // cloudinary url
         },
-        watchHistory: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Video"
-        }],
+        watchHistory: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Video"
+            }
+        ],
         password: {
             type: String,
             required: [true, 'Password is required']
         },
         refreshToken: {
-            type: String,
+            type: String
         }
     },
-    { timestamps: true }
-);
+    {
+        timestamps: true
+    }
+)
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
@@ -64,7 +68,7 @@ userSchema.methods.generateAccessToken = function () {
             _id: this._id,
             email: this.email,
             username: this.username,
-            fullname: this.fullname
+            fullName: this.fullName
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -72,11 +76,11 @@ userSchema.methods.generateAccessToken = function () {
         }
     )
 }
-
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id,
+
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
@@ -85,4 +89,4 @@ userSchema.methods.generateRefreshToken = function () {
     )
 }
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model("User", userSchema)
